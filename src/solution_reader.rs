@@ -2,7 +2,7 @@ use std::{error::Error, fs, path::{Path, PathBuf}};
 
 use regex::Regex;
 
-use crate::project::Project;
+use crate::structs::Project;
 
 pub struct SolutionReader {
     path: PathBuf,

@@ -31,12 +31,13 @@ impl ProjectReferenceChecker {
             }
         }
 
-        if not_existing.is_empty() {
+        if !not_existing.is_empty() {
             let inexisting_projects = not_existing
                 .iter()
                 .filter_map(|d| d.to_str())
                 .collect::<Vec<&str>>()
                 .join("\r\n");
+
 
             return Err(Box::new(FileError::FaultySolutionFilter(
                 solution_filter.path,

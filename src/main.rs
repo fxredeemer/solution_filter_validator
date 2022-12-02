@@ -9,12 +9,12 @@ use std::error::Error;
 mod arguments;
 mod deserialization_structures;
 mod error;
+mod helpers;
 mod project_reference_checker;
 mod solution_filter_reader;
 mod solution_reader;
 mod solution_reference_validator;
 mod structs;
-mod helpers;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let arguments = Arguments::parse();
@@ -27,9 +27,23 @@ fn main() -> Result<(), Box<dyn Error>> {
     let _solution = solution_reader.read_solution()?;
     let filters = solution_filter_reader.get_solution_filters()?;
 
+    let mut errors = vec![];
+
     for filter in filters {
-        reference_checker.validate_references(&filter)?;
-        reference_validator.validate_solution_reference(&_solution, &filter)?;
+        if let Err(error) = reference_checker.validate_references(&filter) {
+            errors.push(error);
+        }
+
+        if let Err(error) = reference_validator.validate_solution_reference(&_solution, &filter) {
+            errors.push(error)
+        }
+    }
+
+    if !errors.is_empty() {
+        let messages: Vec<String> = errors.iter().map(|d| format!("{}", d)).collect();
+        let message = messages.join("\r\n");
+
+        panic!("{}", message);
     }
 
     Ok(())

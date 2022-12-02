@@ -3,6 +3,7 @@ use clap::Parser;
 use project_reference_checker::ProjectReferenceChecker;
 use solution_filter_reader::SolutionFilterReader;
 use solution_reader::SolutionReader;
+use solution_reference_validator::SolutionReferenceValidator;
 use std::error::Error;
 
 mod arguments;
@@ -11,7 +12,9 @@ mod error;
 mod project_reference_checker;
 mod solution_filter_reader;
 mod solution_reader;
+mod solution_reference_validator;
 mod structs;
+mod helpers;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let arguments = Arguments::parse();
@@ -19,12 +22,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     let solution_reader = SolutionReader::new(&arguments.sln_file);
     let solution_filter_reader = SolutionFilterReader::new(&arguments.base_path);
     let reference_checker = ProjectReferenceChecker::new();
+    let reference_validator = SolutionReferenceValidator::new();
 
     let _solution = solution_reader.read_solution()?;
     let filters = solution_filter_reader.get_solution_filters()?;
 
     for filter in filters {
-        reference_checker.validate_references(filter)?;
+        reference_checker.validate_references(&filter)?;
+        reference_validator.validate_solution_reference(&_solution, &filter)?;
     }
 
     Ok(())

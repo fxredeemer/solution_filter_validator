@@ -3,9 +3,11 @@ use std::path::PathBuf;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
-pub enum FileError {
+pub enum SolutionError {
     #[error("The Path `{0}` is invalid")]
     InvalidPath(String),
     #[error("The Solution Filter `{0}` has multiple wrongly referenced projects: {1}")]
-    FaultySolutionFilter(PathBuf, String),
+    FaultyProjectReference(PathBuf, String),
+    #[error("The Solution Filter `{0}` references a not existing solution: {1}")]
+    InvalidSolutionReference(PathBuf, PathBuf),
 }

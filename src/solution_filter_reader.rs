@@ -1,5 +1,5 @@
 use crate::{
-    deserialization_structures::SolutionFilterFile, error::WriteFileError, structs::SolutionFilter,
+    deserialization_structures::SolutionFilterFile, error::FileError, structs::SolutionFilter,
 };
 use glob::*;
 use std::{
@@ -24,7 +24,7 @@ impl SolutionFilterReader {
         let path = Path::new(&self.base_path).join("**/*.slnf");
         let pattern = path
             .to_str()
-            .ok_or(WriteFileError::InvalidPath("".to_owned()))?;
+            .ok_or(FileError::InvalidPath("".to_owned()))?;
 
         let glob = glob(pattern)?;
 

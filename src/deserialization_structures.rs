@@ -4,11 +4,11 @@ use serde::Deserialize;
 
 #[derive(Deserialize, Debug)]
 pub struct SolutionFilterFile{
-    pub solution: Solution,
+    pub solution: SolutionFile,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct Solution
+pub struct SolutionFile
 {
     pub path: PathBuf,
     pub projects: Vec<String>

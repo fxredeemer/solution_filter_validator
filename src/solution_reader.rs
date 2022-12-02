@@ -6,7 +6,7 @@ use std::{
 
 use regex::Regex;
 
-use crate::structs::Project;
+use crate::structs::{Project, Solution};
 
 pub struct SolutionReader {
     path: PathBuf,
@@ -19,7 +19,7 @@ impl SolutionReader {
         }
     }
 
-    pub fn get_projects(&self) -> Result<Vec<Project>, Box<dyn Error>> {
+    pub fn read_solution(&self) -> Result<Solution, Box<dyn Error>> {
         let content = match fs::read_to_string(self.path.to_owned()) {
             Ok(content) => Ok(content),
             Err(_) => Err("Unable to read file contents".to_owned()),
@@ -41,6 +41,9 @@ impl SolutionReader {
             }
         }
 
-        Ok(projects)
+        Ok(Solution {
+            path: self.path.to_owned(),
+            projects,
+        })
     }
 }

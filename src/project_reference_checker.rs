@@ -1,8 +1,7 @@
-use std::{error::Error, fs::canonicalize, path::{PathBuf, Path}};
-
-use crate::{
-    error::FileError,
-    structs::{Solution, SolutionFilter},
+use crate::{error::FileError, structs::SolutionFilter};
+use std::{
+    error::Error,
+    path::{Path, PathBuf},
 };
 
 pub struct ProjectReferenceChecker;
@@ -14,41 +13,43 @@ impl ProjectReferenceChecker {
 
     pub fn validate_references(
         &self,
-        _solution: &Solution,
         solution_filter: SolutionFilter,
     ) -> Result<(), Box<dyn Error>> {
-        println!("Path: {:?}", solution_filter.path);
-
         let solution_filter_containing_folder = try_get_containing_folder(&solution_filter.path)?;
 
-        let solution_path = solution_filter_containing_folder.join(solution_filter.solution_path);
-
-        println!("Solutionpath: {:?}", solution_path);
+        let mut not_existing = vec![];
 
         for project in solution_filter.projects {
-            let mut project_path = PathBuf::new();
+            let project_path = PathBuf::new()
+                .join(solution_filter_containing_folder.clone())
+                .join(project);
 
-            
-            let solution_filter_containing_folder = try_get_containing_folder(&solution_filter.path)?;
-            //project_path = project_path.join(path.to_owned());
-            project_path = project_path.join(project);
+            let project_exists = project_path.exists();
 
-            println!("Relative Project Path: {:?}", project_path);
+            if !project_exists {
+                not_existing.push(project_path);
+            }
+        }
 
-            let absolute_project_path = canonicalize(project_path)?;
+        if not_existing.is_empty() {
+            let inexisting_projects = not_existing
+                .iter()
+                .filter_map(|d| d.to_str())
+                .collect::<Vec<&str>>()
+                .join("\r\n");
 
-            println!("Absolute Project Path: {:?}", absolute_project_path);
+            return Err(Box::new(FileError::FaultySolutionFilter(
+                solution_filter.path,
+                inexisting_projects,
+            )));
         }
 
         Ok(())
     }
 }
 
-
-fn try_get_containing_folder(path : &Path) -> Result<PathBuf, Box<dyn Error>>
-{
-    path
-        .parent()
+fn try_get_containing_folder(path: &Path) -> Result<PathBuf, Box<dyn Error>> {
+    path.parent()
         .map(|d| d.to_owned())
         .ok_or(Box::new(FileError::InvalidPath("".to_owned())))
 }

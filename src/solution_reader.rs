@@ -20,7 +20,7 @@ impl SolutionReader {
     }
 
     pub fn read_solution(&self) -> Result<Solution, Box<dyn Error>> {
-        let content = match fs::read_to_string(self.path.to_owned()) {
+        let content = match fs::read_to_string(&self.path) {
             Ok(content) => Ok(content),
             Err(_) => Err("Unable to read file contents".to_owned()),
         }?;

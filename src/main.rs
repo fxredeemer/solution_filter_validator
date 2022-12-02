@@ -8,10 +8,10 @@ use std::error::Error;
 mod arguments;
 mod deserialization_structures;
 mod error;
+mod project_reference_checker;
 mod solution_filter_reader;
 mod solution_reader;
 mod structs;
-mod project_reference_checker;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let arguments = Arguments::parse();
@@ -20,11 +20,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     let solution_filter_reader = SolutionFilterReader::new(&arguments.base_path);
     let reference_checker = ProjectReferenceChecker::new();
 
-    let solution = solution_reader.read_solution()?;
+    let _solution = solution_reader.read_solution()?;
     let filters = solution_filter_reader.get_solution_filters()?;
 
     for filter in filters {
-        reference_checker.validate_references(&solution, filter)?;
+        reference_checker.validate_references(filter)?;
     }
 
     Ok(())

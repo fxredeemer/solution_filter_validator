@@ -22,7 +22,7 @@ impl SolutionFilterReader {
 
     pub fn get_solution_filters(&self) -> Result<Vec<SolutionFilter>, Box<dyn Error>> {
         let path = Path::new(&self.base_path).join("**/*.slnf");
-        let pattern = path.to_str().ok_or(SolutionError::InvalidPath("".to_owned()))?;
+        let pattern = path.to_str().ok_or_else(|| SolutionError::InvalidPath("".to_owned()))?;
 
         let glob = glob(pattern)?;
 
@@ -43,7 +43,7 @@ impl SolutionFilterReader {
         let name = filter_file.file_name()?.to_str()?.to_owned();
         let content = fs::read_to_string(filter_file).ok()?;
 
-        let content = content.replace("\\", "/");
+        let content = content.replace("\\\\", "/");
 
         if let Ok(solution_filter) = serde_json::from_str::<SolutionFilterFile>(&content) {
             let projects = solution_filter

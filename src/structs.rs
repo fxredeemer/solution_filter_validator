@@ -3,12 +3,13 @@ use std::path::PathBuf;
 #[derive(Debug)]
 pub struct Project {
     pub name: String,
-    pub path: String,
+    pub path: PathBuf,
 }
 
 #[derive(Debug)]
 pub struct SolutionFilter {
     pub name: String,
-    pub path: String,
+    pub path: PathBuf,
+    pub solution_path: PathBuf,
     pub projects: Vec<PathBuf>
 }

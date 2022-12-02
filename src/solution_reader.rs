@@ -1,4 +1,8 @@
-use std::{error::Error, fs, path::{Path, PathBuf}};
+use std::{
+    error::Error,
+    fs,
+    path::{Path, PathBuf},
+};
 
 use regex::Regex;
 
@@ -29,7 +33,9 @@ impl SolutionReader {
         for line in content.lines() {
             if let Some(captures) = regex.captures(line) {
                 let name = captures[2].to_owned();
-                let path = captures[3].to_owned();
+
+                let mut path = PathBuf::new();
+                path.push(&captures[3]);
 
                 projects.push(Project { name, path });
             }

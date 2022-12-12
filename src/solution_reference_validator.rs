@@ -25,15 +25,20 @@ impl SolutionReferenceValidator {
             .join(&solution_filter.solution_path);
 
         let expected_solution_path = std::fs::canonicalize(expected_solution_path)?;
-        let actual_solution_path = std::fs::canonicalize(solution.path.to_owned())?;
-
-        if expected_solution_path != actual_solution_path {
-            return Err(Box::new(SolutionError::InvalidSolutionReference(
+        match std::fs::canonicalize(solution.path.to_owned()) {
+            Ok(actual_solution_path) => {
+                if expected_solution_path != actual_solution_path {
+                    return Err(Box::new(SolutionError::InvalidSolutionReference(
+                        solution_filter.path.to_owned(),
+                        solution.path.to_owned(),
+                    )));
+                }
+                Ok(())
+            }
+            Err(_) => Err(Box::new(SolutionError::InvalidSolutionReference(
                 solution_filter.path.to_owned(),
                 solution.path.to_owned(),
-            )));
+            ))),
         }
-
-        Ok(())
     }
 }

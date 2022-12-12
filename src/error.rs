@@ -6,7 +6,7 @@ use thiserror::Error;
 pub enum SolutionError {
     #[error("The Path `{0}` is invalid")]
     InvalidPath(String),
-    #[error("The Solution Filter `{0}` has multiple wrongly referenced projects: {1}")]
+    #[error("The Solution Filter `{0}` has wrongly referenced projects: \r\n{1}")]
     FaultyProjectReference(PathBuf, String),
     #[error("The Solution Filter `{0}` references a not existing solution: {1}")]
     InvalidSolutionReference(PathBuf, PathBuf),

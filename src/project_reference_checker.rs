@@ -27,11 +27,8 @@ impl ProjectReferenceChecker {
                 .join(solution_containing_folder.clone())
                 .join(project);
 
-            let readable_name = canonicalize(project_path)?;
-            let project_exists = readable_name.exists();
-
-            if !project_exists {
-                not_existing.push(readable_name);
+            if let Err(_) = canonicalize(project_path.clone()) {
+                not_existing.push(project_path);
             }
         }
 

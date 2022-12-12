@@ -29,7 +29,7 @@ impl ProjectReferenceChecker {
         }
 
         if !not_existing.is_empty() {
-            let inexisting_projects = not_existing
+            let inexistent_projects = not_existing
                 .iter()
                 .filter_map(|d| d.to_str())
                 .collect::<Vec<&str>>()
@@ -37,7 +37,7 @@ impl ProjectReferenceChecker {
 
             return Err(Box::new(SolutionError::FaultyProjectReference(
                 solution_filter.path.to_owned(),
-                inexisting_projects,
+                inexistent_projects,
             )));
         }
 

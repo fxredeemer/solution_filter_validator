@@ -43,7 +43,8 @@ impl SolutionFilterReader {
         let name = filter_file.file_name()?.to_str()?.to_owned();
         let content = fs::read_to_string(filter_file).ok()?;
 
-        let content = content.replace("\\\\", "/");
+        let separator = format!("{}", std::path::MAIN_SEPARATOR);
+        let content = content.replace("\\\\", &separator);
 
         if let Ok(solution_filter) = serde_json::from_str::<SolutionFilterFile>(&content) {
             let projects = solution_filter

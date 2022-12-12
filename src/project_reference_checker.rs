@@ -1,5 +1,5 @@
 use crate::{error::SolutionError, helpers::try_get_containing_folder, structs::SolutionFilter};
-use std::{error::Error, path::PathBuf};
+use std::{error::Error, fs::canonicalize, path::PathBuf};
 
 pub struct ProjectReferenceChecker;
 
@@ -14,17 +14,24 @@ impl ProjectReferenceChecker {
     ) -> Result<(), Box<dyn Error>> {
         let solution_filter_containing_folder = try_get_containing_folder(&solution_filter.path)?;
 
+        let absolute_solution_path = PathBuf::new()
+            .join(solution_filter_containing_folder.clone())
+            .join(&solution_filter.solution_path);
+
+        let solution_containing_folder = try_get_containing_folder(&absolute_solution_path)?;
+
         let mut not_existing = vec![];
 
         for project in &solution_filter.projects {
             let project_path = PathBuf::new()
-                .join(solution_filter_containing_folder.clone())
+                .join(solution_containing_folder.clone())
                 .join(project);
 
-            let project_exists = project_path.exists();
+            let readable_name = canonicalize(project_path)?;
+            let project_exists = readable_name.exists();
 
             if !project_exists {
-                not_existing.push(project_path);
+                not_existing.push(readable_name);
             }
         }
 

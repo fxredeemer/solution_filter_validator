@@ -6,7 +6,7 @@ use std::{
     error::Error,
     fs,
     path::{Path, PathBuf},
-    str::FromStr,
+    str::FromStr
 };
 
 pub struct SolutionFilterReader {
@@ -22,15 +22,18 @@ impl SolutionFilterReader {
 
     pub fn get_solution_filters(&self) -> Result<Vec<SolutionFilter>, Box<dyn Error>> {
         let path = Path::new(&self.base_path).join("**/*.slnf");
-        let pattern = path.to_str().ok_or_else(|| SolutionError::InvalidPath("".to_owned()))?;
+        let pattern = path
+            .to_str()
+            .ok_or_else(|| SolutionError::InvalidPath("".to_owned()))?;
 
         let glob = glob(pattern)?;
 
         let mut filters = vec![];
 
         for filter in glob.flatten() {
-            if let Some(filter) = self.parse_slnf(&filter) {
-                filters.push(filter);
+            if let Some(solution_filter) = self.parse_slnf(&filter) {
+                println!("Successfully parsed solution filter {:?}", solution_filter.name);
+                filters.push(solution_filter);
             } else {
                 println!("Could not parse solution filter {:?}", filter);
             }
@@ -43,25 +46,26 @@ impl SolutionFilterReader {
         let name = filter_file.file_name()?.to_str()?.to_owned();
         let content = fs::read_to_string(filter_file).ok()?;
 
-        let separator = format!("{}", std::path::MAIN_SEPARATOR);
-        let content = content.replace("\\\\", &separator);
+        return match serde_json::from_str::<SolutionFilterFile>(&content) {
+            Ok(solution_filter) => {
+                let projects = solution_filter
+                    .solution
+                    .projects
+                    .iter()
+                    .filter_map(|d| PathBuf::from_str(d).ok())
+                    .collect();
 
-        if let Ok(solution_filter) = serde_json::from_str::<SolutionFilterFile>(&content) {
-            let projects = solution_filter
-                .solution
-                .projects
-                .iter()
-                .filter_map(|d| PathBuf::from_str(d).ok())
-                .collect();
-
-            return Some(SolutionFilter {
-                name,
-                path: filter_file.to_owned(),
-                projects,
-                solution_path: solution_filter.solution.path,
-            });
-        }
-
-        None
+                Some(SolutionFilter {
+                    name,
+                    path: filter_file.to_owned(),
+                    projects,
+                    solution_path: solution_filter.solution.path,
+                })
+            }
+            Err(error) => {
+                println!("error in parsing: {}", error);
+                None
+            }
+        };
     }
 }

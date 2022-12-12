@@ -15,7 +15,7 @@ impl ProjectReferenceChecker {
         let solution_filter_containing_folder = try_get_containing_folder(&solution_filter.path)?;
 
         let absolute_solution_path = PathBuf::new()
-            .join(solution_filter_containing_folder.clone())
+            .join(solution_filter_containing_folder)
             .join(&solution_filter.solution_path);
 
         let solution_containing_folder = try_get_containing_folder(&absolute_solution_path)?;
@@ -27,7 +27,7 @@ impl ProjectReferenceChecker {
                 .join(solution_containing_folder.clone())
                 .join(project);
 
-            if let Err(_) = canonicalize(project_path.clone()) {
+            if canonicalize(project_path.clone()).is_err() {
                 not_existing.push(project_path);
             }
         }

@@ -4,7 +4,6 @@ use project_reference_checker::ProjectReferenceChecker;
 use solution_filter_reader::SolutionFilterReader;
 use solution_reader::SolutionReader;
 use solution_reference_validator::SolutionReferenceValidator;
-use std::error::Error;
 
 mod arguments;
 mod deserialization_structures;
@@ -16,7 +15,7 @@ mod solution_reader;
 mod solution_reference_validator;
 mod structs;
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> Result<(), String> {
     let arguments = Arguments::parse();
 
     let solution_reader = SolutionReader::new(&arguments.sln_file);
@@ -24,8 +23,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     let reference_checker = ProjectReferenceChecker::new();
     let reference_validator = SolutionReferenceValidator::new();
 
-    let _solution = solution_reader.read_solution()?;
-    let filters = solution_filter_reader.get_solution_filters()?;
+    let _solution = solution_reader
+        .read_solution()
+        .map_err(|err| format!("{err}"))?;
+
+    let filters = solution_filter_reader
+        .get_solution_filters()
+        .map_err(|err| format!("{err}"))?;
 
     let mut errors = vec![];
 
@@ -43,7 +47,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         let messages: Vec<String> = errors.iter().map(|d| format!("{}", d)).collect();
         let message = messages.join("\r\n");
 
-        panic!("{}", message);
+        return Err(message);
     }
 
     Ok(())

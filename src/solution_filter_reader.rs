@@ -7,7 +7,7 @@ use std::{
     error::Error,
     fs,
     path::{Path, PathBuf},
-    str::FromStr
+    str::FromStr,
 };
 
 pub struct SolutionFilterReader {
@@ -33,7 +33,10 @@ impl SolutionFilterReader {
 
         for filter in glob.flatten() {
             if let Some(solution_filter) = self.parse_slnf(&filter) {
-                println!("Successfully parsed solution filter {:?}", solution_filter.name);
+                println!(
+                    "Successfully parsed solution filter {:?}",
+                    solution_filter.name
+                );
                 filters.push(solution_filter);
             } else {
                 println!("Could not parse solution filter {:?}", filter);

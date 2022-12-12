@@ -25,7 +25,7 @@ impl SolutionReferenceValidator {
             .join(&solution_filter.solution_path);
 
         let expected_solution_path = std::fs::canonicalize(expected_solution_path)?;
-        match std::fs::canonicalize(solution.path.to_owned()) {
+        match std::fs::canonicalize(&solution.path) {
             Ok(actual_solution_path) => {
                 if expected_solution_path != actual_solution_path {
                     return Err(Box::new(SolutionError::InvalidSolutionReference(

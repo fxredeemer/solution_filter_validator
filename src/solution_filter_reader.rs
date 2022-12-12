@@ -2,6 +2,7 @@ use crate::{
     deserialization_structures::SolutionFilterFile, error::SolutionError, structs::SolutionFilter,
 };
 use glob::*;
+use regex::Regex;
 use std::{
     error::Error,
     fs,
@@ -45,6 +46,9 @@ impl SolutionFilterReader {
     fn parse_slnf(&self, filter_file: &Path) -> Option<SolutionFilter> {
         let name = filter_file.file_name()?.to_str()?.to_owned();
         let content = fs::read_to_string(filter_file).ok()?;
+
+        let regex = Regex::new(",\\s*\\]").unwrap();
+        let content = regex.replace_all(&content, "]");
 
         return match serde_json::from_str::<SolutionFilterFile>(&content) {
             Ok(solution_filter) => {

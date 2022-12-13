@@ -15,7 +15,17 @@ mod solution_reader;
 mod solution_reference_validator;
 mod structs;
 
-fn main() -> Result<(), String> {
+fn main() -> Result<(), ()> {
+    match execute() {
+        Ok(_) => Ok(()),
+        Err(error) => {
+            println!("{error}");
+            Err(())
+        }
+    }
+}
+
+fn execute() -> Result<(), String> {
     let arguments = Arguments::parse();
 
     let solution_reader = SolutionReader::new(&arguments.sln_file);

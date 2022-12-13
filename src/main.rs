@@ -2,7 +2,6 @@ use arguments::Arguments;
 use clap::Parser;
 use project_reference_checker::ProjectReferenceChecker;
 use solution_filter_reader::SolutionFilterReader;
-use solution_reader::SolutionReader;
 use solution_reference_validator::SolutionReferenceValidator;
 
 mod arguments;
@@ -11,7 +10,6 @@ mod error;
 mod helpers;
 mod project_reference_checker;
 mod solution_filter_reader;
-mod solution_reader;
 mod solution_reference_validator;
 mod structs;
 
@@ -28,14 +26,9 @@ fn main() -> Result<(), ()> {
 fn execute() -> Result<(), String> {
     let arguments = Arguments::parse();
 
-    let solution_reader = SolutionReader::new(&arguments.sln_file);
     let solution_filter_reader = SolutionFilterReader::new(&arguments.base_path);
     let reference_checker = ProjectReferenceChecker::new();
     let reference_validator = SolutionReferenceValidator::new();
-
-    let _solution = solution_reader
-        .read_solution()
-        .map_err(|err| format!("{err}"))?;
 
     let filters = solution_filter_reader
         .get_solution_filters()
@@ -48,7 +41,7 @@ fn execute() -> Result<(), String> {
             errors.push(error);
         }
 
-        if let Err(error) = reference_validator.validate_solution_reference(&_solution, &filter) {
+        if let Err(error) = reference_validator.validate_solution_reference(&filter) {
             errors.push(error)
         }
     }

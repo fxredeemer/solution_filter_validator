@@ -1,10 +1,5 @@
-use std::{error::Error, path::PathBuf};
-
-use crate::{
-    error::SolutionError,
-    helpers::try_get_containing_folder,
-    structs::{Solution, SolutionFilter},
-};
+use crate::{error::SolutionError, helpers::try_get_containing_folder, structs::SolutionFilter};
+use std::{error::Error, fs::canonicalize, path::PathBuf};
 
 pub struct SolutionReferenceValidator;
 
@@ -15,7 +10,6 @@ impl SolutionReferenceValidator {
 
     pub fn validate_solution_reference(
         &self,
-        solution: &Solution,
         solution_filter: &SolutionFilter,
     ) -> Result<(), Box<dyn Error>> {
         let folder = try_get_containing_folder(&solution_filter.path)?;
@@ -24,20 +18,11 @@ impl SolutionReferenceValidator {
             .join(folder)
             .join(&solution_filter.solution_path);
 
-        let expected_solution_path = std::fs::canonicalize(expected_solution_path)?;
-        match std::fs::canonicalize(&solution.path) {
-            Ok(actual_solution_path) => {
-                if expected_solution_path != actual_solution_path {
-                    return Err(Box::new(SolutionError::InvalidSolutionReference(
-                        solution_filter.path.to_owned(),
-                        solution.path.to_owned(),
-                    )));
-                }
-                Ok(())
-            }
+        match canonicalize(&expected_solution_path) {
+            Ok(_) => Ok(()),
             Err(_) => Err(Box::new(SolutionError::InvalidSolutionReference(
                 solution_filter.path.to_owned(),
-                solution.path.to_owned(),
+                solution_filter.solution_path.to_owned(),
             ))),
         }
     }

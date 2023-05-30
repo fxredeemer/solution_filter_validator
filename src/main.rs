@@ -2,6 +2,7 @@ use arguments::Arguments;
 use clap::Parser;
 use project_reference_checker::ProjectReferenceChecker;
 use solution_filter_reader::SolutionFilterReader;
+use solution_filters_provider::SolutionFiltersProvider;
 use solution_reference_validator::SolutionReferenceValidator;
 
 mod arguments;
@@ -12,6 +13,7 @@ mod project_reference_checker;
 mod solution_filter_reader;
 mod solution_reference_validator;
 mod structs;
+mod solution_filters_provider;
 
 fn main() -> Result<(), ()> {
     match execute() {
@@ -26,9 +28,13 @@ fn main() -> Result<(), ()> {
 fn execute() -> Result<(), String> {
     let arguments = Arguments::parse();
 
-    let solution_filter_reader = SolutionFilterReader::new(&arguments.base_path);
+    let solution_filters_provider = SolutionFiltersProvider::new(&arguments.base_path);
+    let solution_filter_reader = SolutionFilterReader::new();
     let reference_checker = ProjectReferenceChecker::new();
     let reference_validator = SolutionReferenceValidator::new();
+
+    let filters = solution_filters_provider.get_solution_filter_files();
+
 
     let filters = solution_filter_reader
         .get_solution_filters()
